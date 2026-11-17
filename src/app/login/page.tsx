@@ -1,0 +1,1 @@
+export default function Login(){return <main className="mx-auto max-w-md p-8"><h1 className="text-3xl font-bold">Sign in</h1><p className="mt-3 text-slate-600">Configure Supabase variables to enable secure authentication.</p></main>}

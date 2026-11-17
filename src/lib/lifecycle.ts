@@ -1,0 +1,4 @@
+import type { TournamentStatus } from "@/types/tournament";
+const transitions: Record<TournamentStatus, TournamentStatus[]> = { DRAFT:["REGISTRATION_OPEN","ARCHIVED"], REGISTRATION_OPEN:["REGISTRATION_CLOSED","ARCHIVED"], REGISTRATION_CLOSED:["REGISTRATION_OPEN","DRAW_READY","ARCHIVED"], DRAW_READY:["DRAW_COMPLETED","REGISTRATION_OPEN","ARCHIVED"], DRAW_COMPLETED:["IN_PROGRESS","REGISTRATION_OPEN","ARCHIVED"], IN_PROGRESS:["PAUSED","COMPLETED"], PAUSED:["IN_PROGRESS","COMPLETED"], COMPLETED:["ARCHIVED"], ARCHIVED:[] };
+export function canTransition(from: TournamentStatus, to: TournamentStatus) { return transitions[from].includes(to); }
+export function canStart(input: { status: TournamentStatus; confirmed: number; minimum: number; drawConfirmed: boolean; fixtures: number }) { return input.status === "DRAW_COMPLETED" && input.confirmed >= input.minimum && input.drawConfirmed && input.fixtures > 0; }

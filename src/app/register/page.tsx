@@ -1,0 +1,1 @@
+export default function Register(){return <main className="mx-auto max-w-md p-8"><h1 className="text-3xl font-bold">Join the cup</h1><p className="mt-3 text-slate-600">Registration is validated by the database and remains open only until the organizer closes it.</p></main>}

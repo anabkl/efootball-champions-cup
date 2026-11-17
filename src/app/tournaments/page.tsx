@@ -1,0 +1,1 @@
+import Link from "next/link"; export default function Tournaments(){return <main className="p-8"><h1 className="text-3xl font-bold">Tournaments</h1><p className="mt-3 text-slate-600">Create your first tournament from the admin dashboard.</p><Link className="mt-6 inline-block rounded bg-slate-950 px-4 py-2 text-white" href="/admin">Open admin dashboard</Link></main>}
