@@ -16,7 +16,7 @@ Next.js App Router, TypeScript, Tailwind CSS, Supabase Auth/Postgres/Realtime/St
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and set your Supabase project URL and anon key.
-2. In Supabase SQL Editor, run every file in `supabase/migrations` in filename order (`202611170001` through `202611180005`).
+2. Follow `supabase/SETUP.md` and apply every migration in filename order (`202611170001` through `202611180005`).
 3. Install and run:
 
 ```bash
@@ -24,7 +24,7 @@ npm install
 npm run dev
 ```
 
-In Supabase Authentication, enable Email/Password and disable email confirmation for this private username-based app. Usernames are mapped internally to non-deliverable addresses; players never provide an email. Do not expose `SUPABASE_SERVICE_ROLE_KEY`; it is used only by the provisioning script.
+In Supabase Authentication, enable Email/Password and disable email confirmation for this private username-based app. Usernames map to identifiers under the IANA-reserved `example.com` domain; players never provide an email and no email recovery is used. Do not expose `SUPABASE_SERVICE_ROLE_KEY`; it is used only by local administration scripts.
 
 Provision the only administrator with a strong password:
 
@@ -32,11 +32,11 @@ Provision the only administrator with a strong password:
 ADMIN_USERNAME=anas ADMIN_PASSWORD='replace-with-a-strong-password' npm run provision:admin
 ```
 
-The temporary password `anas` is accepted only when `NODE_ENV` is not `production`.
+Weak admin passwords are refused on every remote Supabase project. The local-only override works solely with a localhost Supabase URL.
 
 ## Deploy to Vercel
 
-Import the repository into Vercel, add the three environment variables from `.env.example` (mark the service role key secret), and deploy. Configure Supabase Authentication redirect URLs for the Vercel URL and `http://localhost:3000`.
+Import the repository into Vercel and add only `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `AUTH_INTERNAL_EMAIL_DOMAIN`. Keep `SUPABASE_SERVICE_ROLE_KEY` out of the web deployment; it is only needed by local administration scripts. Configure Supabase Authentication redirect URLs for the Vercel URL and `http://localhost:3000`.
 
 ## First tournament
 

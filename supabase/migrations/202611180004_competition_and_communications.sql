@@ -52,4 +52,5 @@ begin
  update matches set home_score=home_goals,away_score=away_goals,penalties_home=penalties_h,penalties_away=penalties_a,status='COMPLETED',completed_at=now(),winner_profile_id=case when home_goals>away_goals or (home_goals=away_goals and coalesce(penalties_h,0)>coalesce(penalties_a,0)) then home_profile_id when home_goals<away_goals or (home_goals=away_goals and coalesce(penalties_a,0)>coalesce(penalties_h,0)) then away_profile_id else null end where id=mid;
  insert into audit_logs(tournament_id,actor_id,action,metadata) values(tid,auth.uid(),'RECORD_RESULT',jsonb_build_object('match_id',mid,'home',home_goals,'away',away_goals));
 end; $$;
+revoke all on function public.admin_generate_draw(uuid,int),public.admin_confirm_draw(uuid),public.admin_record_result(uuid,int,int,int,int) from public,anon;
 grant execute on function public.admin_generate_draw(uuid,int),public.admin_confirm_draw(uuid),public.admin_record_result(uuid,int,int,int,int) to authenticated;

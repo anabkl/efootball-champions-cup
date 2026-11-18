@@ -4,12 +4,14 @@ import { getSupabasePublicConfig, SupabaseConfigurationError } from "../src/lib/
 
 const originalUrl=process.env.NEXT_PUBLIC_SUPABASE_URL;
 const originalKey=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-afterEach(()=>{if(originalUrl===undefined)delete process.env.NEXT_PUBLIC_SUPABASE_URL;else process.env.NEXT_PUBLIC_SUPABASE_URL=originalUrl;if(originalKey===undefined)delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;else process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY=originalKey;});
+const originalDomain=process.env.AUTH_INTERNAL_EMAIL_DOMAIN;
+afterEach(()=>{if(originalUrl===undefined)delete process.env.NEXT_PUBLIC_SUPABASE_URL;else process.env.NEXT_PUBLIC_SUPABASE_URL=originalUrl;if(originalKey===undefined)delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;else process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY=originalKey;if(originalDomain===undefined)delete process.env.AUTH_INTERNAL_EMAIL_DOMAIN;else process.env.AUTH_INTERNAL_EMAIL_DOMAIN=originalDomain;});
 
 describe("player credentials",()=>{
   it("accepts an eight character password and rejects seven",()=>{expect(passwordSchema.safeParse("12345678").success).toBe(true);expect(passwordSchema.safeParse("1234567").success).toBe(false)});
   it("rejects mismatched confirmation",()=>{const result=registrationSchema.safeParse({displayName:"Anas",username:"anas_1",efootballUsername:"ANAS",selectedTeam:"",password:"12345678",passwordConfirm:"87654321"});expect(result.success).toBe(false)});
-  it("maps username internally without asking the player for email",()=>expect(usernameToEmail("Anas_1")).toBe("anas_1@players.efootball-champions-cup.invalid"));
+  it("maps username to the reserved internal domain without asking for email",()=>{delete process.env.AUTH_INTERNAL_EMAIL_DOMAIN;expect(usernameToEmail("Anas_1")).toBe("anas_1@users.efootball-champions-cup.example.com")});
+  it("never uses the rejected .invalid domain",()=>expect(usernameToEmail("amin")).not.toContain(".invalid"));
 });
 
 describe("Supabase configuration",()=>{

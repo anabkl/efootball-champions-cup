@@ -4,13 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:integration": "RUN_SUPABASE_INTEGRATION=1 vitest run tests/supabase-e2e.test.ts",
-    "provision:admin": "node scripts/provision-admin.mjs"
+    "provision:admin": "node scripts/provision-admin.mjs",
+    "audit:admin": "node scripts/audit-admin.mjs",
+    "audit:schema": "node scripts/audit-schema.mjs"
   },
   "dependencies": {
     "next": "16.4.6",

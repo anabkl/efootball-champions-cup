@@ -72,6 +72,8 @@ begin
  if m.round='THIRD_PLACE' then update tournament_members set competition_status='THIRD' where tournament_id=m.tournament_id and profile_id=m.winner_profile_id; end if;
 end; $$;
 
+revoke all on function public.generate_knockout_if_ready(uuid),public.progress_knockout(uuid) from public,anon,authenticated;
+
 -- Replace score mutation so edits are idempotent and progression runs from the stored match once.
 create or replace function public.admin_record_result(mid uuid,home_goals int,away_goals int,penalties_h int default null,penalties_a int default null) returns void language plpgsql security definer set search_path=public as $$
 declare tid uuid; knockout boolean;
@@ -84,3 +86,5 @@ begin
  perform progress_knockout(mid);
  insert into audit_logs(tournament_id,actor_id,action,metadata) values(tid,auth.uid(),'RECORD_RESULT',jsonb_build_object('match_id',mid,'home',home_goals,'away',away_goals));
 end; $$;
+revoke all on function public.admin_record_result(uuid,int,int,int,int) from public,anon;
+grant execute on function public.admin_record_result(uuid,int,int,int,int) to authenticated;

@@ -33,6 +33,8 @@ begin
   update tournaments set status='IN_PROGRESS' where id=tid;
   insert into audit_logs(tournament_id,actor_id,action) values(tid,auth.uid(),'START_TOURNAMENT');
 end; $$;
+revoke all on function public.current_tournament() from public;
+revoke all on function public.join_tournament(uuid),public.admin_set_registration(uuid,boolean),public.admin_confirm_member(uuid,uuid,boolean),public.admin_start_tournament(uuid) from public,anon;
 grant execute on function public.current_tournament() to anon, authenticated;
 grant execute on function public.join_tournament(uuid) to authenticated;
 grant execute on function public.admin_set_registration(uuid,boolean) to authenticated;
