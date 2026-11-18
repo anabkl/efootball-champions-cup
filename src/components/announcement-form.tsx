@@ -1,0 +1,4 @@
+"use client";
+import { useState, useTransition } from "react";
+import { publishAnnouncement } from "@/app/actions/tournament";
+export function AnnouncementForm({tournamentId}:{tournamentId:string}){const [body,setBody]=useState("");const [pending,start]=useTransition();return <form className="mt-3 flex flex-col gap-2 sm:flex-row" onSubmit={e=>{e.preventDefault();start(async()=>{try{await publishAnnouncement(tournamentId,body);setBody("")}catch(error){alert(error instanceof Error?error.message:"Publication impossible")}})}}><input value={body} onChange={e=>setBody(e.target.value)} maxLength={500} required placeholder="Annonce pour tous les participants" className="min-h-11 flex-1 rounded-lg border p-3"/><button disabled={pending} className="rounded-lg bg-cyan-400 px-4 font-bold text-slate-950 disabled:opacity-40">{pending?"Publication…":"Publier"}</button></form>}

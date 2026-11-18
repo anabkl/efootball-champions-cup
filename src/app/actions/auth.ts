@@ -1,0 +1,8 @@
+"use server";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { loginSchema, registrationSchema, usernameToEmail } from "@/lib/auth";
+
+export type AuthState = { error?: string };
+export async function signIn(_: AuthState, formData: FormData): Promise<AuthState> { const parsed = loginSchema.safeParse(Object.fromEntries(formData)); if (!parsed.success) return { error: "Identifiants invalides." }; const supabase = await createClient(); const { error } = await supabase.auth.signInWithPassword({ email: usernameToEmail(parsed.data.username), password: parsed.data.password }); if (error) return { error: "Username ou mot de passe incorrect." }; const { data: { user } } = await supabase.auth.getUser(); const { data: profile } = await supabase.from("profiles").select("role").eq("id", user!.id).single(); redirect(profile?.role === "ADMIN" ? "/admin" : "/dashboard"); }
+export async function signUp(_: AuthState, formData: FormData): Promise<AuthState> { const parsed = registrationSchema.safeParse(Object.fromEntries(formData)); if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Données invalides." }; const supabase = await createClient(); const { data, error } = await supabase.auth.signUp({ email: usernameToEmail(parsed.data.username), password: parsed.data.password, options: { data: { display_name: parsed.data.displayName, username: parsed.data.username, efootball_username: parsed.data.efootballUsername, selected_team: parsed.data.selectedTeam || null } } }); if (error) return { error: error.message }; if (!data.user) return { error: "Inscription impossible." }; redirect("/dashboard"); }

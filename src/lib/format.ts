@@ -2,7 +2,7 @@ import type { Fixture, Group, Participant, Standing } from "@/types/tournament";
 
 export function recommendFormats(count: number) {
   if (count < 6) return [];
-  const candidates = [2, 3, 4, 5, 6, 8].filter((groups) => groups <= count / 3 && count % groups !== 1);
+  const candidates = [2, 3, 4, 5, 6, 8].filter((groups) => groups <= count / 3 && Math.min(...balancedSizes(count, groups)) >= 3 && Math.max(...balancedSizes(count, groups)) <= 5);
   return candidates.map((groups) => ({ groups, sizes: balancedSizes(count, groups), advancing: Math.min(groups * 2, nearestBracket(groups * 2)) }));
 }
 export function balancedSizes(total: number, groups: number) {
@@ -10,6 +10,10 @@ export function balancedSizes(total: number, groups: number) {
   return Array.from({ length: groups }, (_, i) => base + (i < extra ? 1 : 0));
 }
 export function nearestBracket(n: number) { return 2 ** Math.floor(Math.log2(n)); }
+export function knockoutPlan(qualifiers: number) {
+  if (![4, 6, 8].includes(qualifiers)) throw new Error("Knockout requires 4, 6 or 8 qualifiers.");
+  return { qualifiers, quarterFinals: qualifiers === 4 ? 0 : qualifiers === 6 ? 2 : 4, semiFinals: 2, final: 1, thirdPlace: 1, byes: qualifiers === 6 ? 2 : 0 };
+}
 export function createGroups(players: Participant[], groupCount: number, random = Math.random): Group[] {
   if (players.length < groupCount * 3) throw new Error("Each group requires at least three players.");
   const shuffled = [...players].sort(() => random() - 0.5);

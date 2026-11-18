@@ -1,1 +1,2 @@
-export default function Login(){return <main className="mx-auto max-w-md p-8"><h1 className="text-3xl font-bold">Sign in</h1><p className="mt-3 text-slate-600">Configure Supabase variables to enable secure authentication.</p></main>}
+import Link from "next/link"; import { LoginForm } from "./login-form";
+export default function Login(){return <main className="auth-card"><p className="auth-kicker">Player access</p><h1 className="mt-3 text-3xl font-bold">Bon retour parmi nous</h1><p className="mt-3 text-slate-400">Connectez-vous avec votre username et mot de passe.</p><LoginForm/><p className="mt-6 text-sm text-slate-400">Nouveau joueur ? <Link className="font-bold text-cyan-300 underline" href="/register">Créer un compte</Link></p></main>}

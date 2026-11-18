@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:integration": "RUN_SUPABASE_INTEGRATION=1 vitest run tests/supabase-e2e.test.ts",
+    "provision:admin": "node scripts/provision-admin.mjs"
   },
   "dependencies": {
     "next": "16.4.6",
