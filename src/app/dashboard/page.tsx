@@ -1,12 +1,17 @@
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ActionButton } from "@/components/action-button";
 import { joinTournament, saveWhatsApp } from "@/app/actions/tournament";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { ConfigurationNotice } from "@/components/configuration-notice";
 
 export const instant = false;
 type Named = { display_name: string; efootball_username?: string };
 
 export default async function Dashboard() {
+  await connection();
+  if (!isSupabaseConfigured()) return <ConfigurationNotice/>;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");

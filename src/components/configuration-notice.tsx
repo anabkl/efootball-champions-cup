@@ -1,0 +1,2 @@
+import { SUPABASE_CONFIGURATION_MESSAGE } from "@/lib/supabase/config";
+export function ConfigurationNotice(){return <main className="auth-card"><p className="auth-kicker">Configuration requise</p><h1 className="mt-3 text-3xl font-bold">Connexion à la base indisponible</h1><p className="mt-4 leading-7 text-slate-300">{SUPABASE_CONFIGURATION_MESSAGE}</p><p className="mt-4 text-sm text-slate-400">Aucune authentification ni donnée n’est simulée. Les secrets ne doivent jamais être placés dans le code ou commités.</p></main>}
