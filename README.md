@@ -50,4 +50,16 @@ Import the repository into Vercel, add the three environment variables from `.en
 
 `npm test` covers format balancing, standings recalculation, score correction, knockout plans, authorization contracts and draw privacy. A full persistence scenario requires a dedicated Supabase test project configured through `.env.local`; local unit tests do not claim remote persistence coverage.
 
+### Real Supabase integration test
+
+Use a disposable Supabase project, never production. Apply all five migrations, then create `.env.test.local`:
+
+```dotenv
+SUPABASE_TEST_URL=https://your-test-project.supabase.co
+SUPABASE_TEST_ANON_KEY=your-test-anon-key
+SUPABASE_TEST_SERVICE_ROLE_KEY=your-test-service-role-key
+```
+
+Run `npm run test:integration`. The test creates seven temporary accounts, executes registration closure, draw, manual start, group results, standings, qualification, elimination, semi-finals, third-place match and final, verifies the podium and retained eliminated account, then removes its temporary data.
+
 No license is included until an explicit license choice is made.
