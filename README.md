@@ -16,7 +16,7 @@ Next.js App Router, TypeScript, Tailwind CSS, Supabase Auth/Postgres/Realtime/St
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and set your Supabase project URL and anon key.
-2. In Supabase SQL Editor, run `supabase/migrations/202611170001_initial.sql`.
+2. In Supabase SQL Editor, run every file in `supabase/migrations` in filename order (`202611170001` through `202611180005`).
 3. Install and run:
 
 ```bash
@@ -24,7 +24,15 @@ npm install
 npm run dev
 ```
 
-Use Supabase Authentication to enable email/password and optionally Google OAuth. Do not expose `SUPABASE_SERVICE_ROLE_KEY`; it is server-only.
+In Supabase Authentication, enable Email/Password and disable email confirmation for this private username-based app. Usernames are mapped internally to non-deliverable addresses; players never provide an email. Do not expose `SUPABASE_SERVICE_ROLE_KEY`; it is used only by the provisioning script.
+
+Provision the only administrator with a strong password:
+
+```bash
+ADMIN_USERNAME=anas ADMIN_PASSWORD='replace-with-a-strong-password' npm run provision:admin
+```
+
+The temporary password `anas` is accepted only when `NODE_ENV` is not `production`.
 
 ## Deploy to Vercel
 
@@ -32,19 +40,14 @@ Import the repository into Vercel, add the three environment variables from `.en
 
 ## First tournament
 
-1. Promote the organizer profile to `is_super_admin` in Supabase.
-2. Create a tournament with a unique invitation code (for example `EFC-2026`).
+1. Sign in as the provisioned `anas` administrator.
+2. Create a tournament from `/admin` with a unique invitation code.
 3. Open registration and share `https://your-domain.com/join/EFC-2026` over WhatsApp.
 4. Approve registrations. Close registration when ready.
 5. Select and confirm a valid group format, generate fixtures, then press **Start tournament**.
 
-## Repository publishing
+## Validation scope
 
-```bash
-git init
-git add .
-git commit -m "feat: initialize eFootball Champions Cup platform"
-gh repo create efootball-champions-cup --private --source=. --remote=origin --push
-```
+`npm test` covers format balancing, standings recalculation, score correction, knockout plans, authorization contracts and draw privacy. A full persistence scenario requires a dedicated Supabase test project configured through `.env.local`; local unit tests do not claim remote persistence coverage.
 
 No license is included until an explicit license choice is made.
