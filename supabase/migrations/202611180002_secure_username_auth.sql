@@ -1,6 +1,5 @@
--- Auth uses Supabase password hashing/session handling. Usernames are mapped server-side
--- to an identifier under the IANA-reserved example.com domain. Players never supply an email,
--- and email confirmation/recovery must remain disabled for this private username-only app.
+-- Legacy Supabase Auth bootstrap retained for migration history. Migration 006 removes
+-- this trigger and moves username/password authentication to application-owned credentials.
 alter table public.profiles add column if not exists username text;
 alter table public.profiles add column if not exists role text not null default 'PLAYER' check (role in ('ADMIN','PLAYER'));
 create unique index if not exists profiles_username_lower_unique on public.profiles (lower(username));

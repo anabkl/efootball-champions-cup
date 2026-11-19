@@ -1,4 +1,11 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import "server-only";
+
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { getSupabasePublicConfig } from "./config";
-export async function createClient() { const {url,anonKey}=getSupabasePublicConfig();const store = await cookies(); return createServerClient(url,anonKey, { cookies: { getAll: () => store.getAll(), setAll: (items) => { try { items.forEach(({ name, value, options }) => store.set(name, value, options)); } catch {} } } }); }
+
+export function createClient() {
+  const { url, anonKey } = getSupabasePublicConfig();
+  return createSupabaseClient(url, anonKey, {
+    auth: { autoRefreshToken: false, detectSessionInUrl: false, persistSession: false },
+  });
+}

@@ -1,9 +1,10 @@
-import { redirect } from "next/navigation";
 import { connection } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { requireUser } from "@/lib/auth/dal";
+import { signOut } from "@/app/actions/auth";
 import { ActionButton } from "@/components/action-button";
 import { joinTournament, saveWhatsApp } from "@/app/actions/tournament";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { isSupabaseServerConfigured } from "@/lib/supabase/config";
 import { ConfigurationNotice } from "@/components/configuration-notice";
 
 export const instant = false;
@@ -11,16 +12,15 @@ type Named = { display_name: string; efootball_username?: string };
 
 export default async function Dashboard() {
   await connection();
-  if (!isSupabaseConfigured()) return <ConfigurationNotice/>;
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!isSupabaseServerConfigured()) return <ConfigurationNotice/>;
+  const user = await requireUser();
+  const supabase = createAdminClient();
   const [{ data: profile }, { data: tournament }, { data: contact }] = await Promise.all([
     supabase.from("profiles").select("display_name,efootball_username,selected_team").eq("id", user.id).single(),
     supabase.from("tournaments").select("id,name,status,min_participants").in("status", ["REGISTRATION_OPEN","REGISTRATION_CLOSED","DRAW_READY","DRAW_COMPLETED","IN_PROGRESS","PAUSED","COMPLETED"]).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("player_contacts").select("whatsapp_phone").eq("profile_id", user.id).maybeSingle(),
   ]);
-  if (!tournament) return <main className="mx-auto p-8"><p className="auth-kicker">Player dashboard</p><h1 className="mt-3 text-4xl font-black">Bienvenue, {profile?.display_name}</h1><p className="mt-5 text-slate-400">Aucun tournoi actif pour le moment.</p></main>;
+  if (!tournament) return <main className="mx-auto p-8"><div className="flex items-center justify-between gap-4"><p className="auth-kicker">Player dashboard</p><form action={signOut}><button className="rounded-lg border border-white/15 px-3 py-2 text-sm font-bold">Déconnexion</button></form></div><h1 className="mt-3 text-4xl font-black">Bienvenue, {profile?.display_name}</h1><p className="mt-5 text-slate-400">Aucun tournoi actif pour le moment.</p></main>;
   const [{ data: members }, { data: announcements }, { data: ownMembership }] = await Promise.all([
     supabase.from("tournament_members").select("profile_id,status,competition_status,profiles(display_name,efootball_username)").eq("tournament_id", tournament.id).eq("status", "CONFIRMED"),
     supabase.from("announcements").select("id,body,created_at").eq("tournament_id", tournament.id).order("created_at", { ascending: false }),
@@ -37,7 +37,7 @@ export default async function Dashboard() {
   const { data: matches } = started ? await supabase.from("matches").select("id,round,status,home_score,away_score,home_profile:profiles!matches_home_profile_id_fkey(display_name),away_profile:profiles!matches_away_profile_id_fkey(display_name)").eq("tournament_id", tournament.id).order("round") : { data: [] };
   const podium = members?.filter((m) => ["CHAMPION","RUNNER_UP","THIRD"].includes((m as unknown as { competition_status?: string }).competition_status ?? ""));
   return <main className="mx-auto max-w-6xl p-8">
-    <p className="auth-kicker">Player dashboard</p><div className="mt-3 flex flex-wrap items-end justify-between gap-4"><div><h1 className="text-4xl font-black">{tournament.name}</h1><p className="mt-2 text-slate-400">{members?.length ?? 0} inscrits · minimum {tournament.min_participants}</p></div>{ownMembership && <span className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-4 py-2 text-sm font-bold text-cyan-300">{ownMembership.competition_status}</span>}</div>
+    <div className="flex items-center justify-between gap-4"><p className="auth-kicker">Player dashboard</p><form action={signOut}><button className="rounded-lg border border-white/15 px-3 py-2 text-sm font-bold">Déconnexion</button></form></div><div className="mt-3 flex flex-wrap items-end justify-between gap-4"><div><h1 className="text-4xl font-black">{tournament.name}</h1><p className="mt-2 text-slate-400">{members?.length ?? 0} inscrits · minimum {tournament.min_participants}</p></div>{ownMembership && <span className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-4 py-2 text-sm font-bold text-cyan-300">{ownMembership.competition_status}</span>}</div>
     {!ownMembership && tournament.status === "REGISTRATION_OPEN" && <div className="mt-7"><ActionButton label="Rejoindre le tournoi" action={joinTournament.bind(null, tournament.id)}/></div>}
     {ownMembership && !started && <p className="mt-7 rounded-xl border border-green-400/20 bg-green-400/10 p-4 font-semibold text-green-300">You&apos;re registered! Waiting for the organizer to start the tournament.</p>}
     {!ownMembership && tournament.status !== "REGISTRATION_OPEN" && <p className="mt-7 rounded-xl border border-yellow-400/20 bg-yellow-400/10 p-4 text-yellow-200">Les inscriptions sont fermées.</p>}

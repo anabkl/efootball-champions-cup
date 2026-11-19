@@ -15,23 +15,23 @@
     "audit:schema": "node scripts/audit-schema.mjs"
   },
   "dependencies": {
+    "@node-rs/argon2": "^2.2.2",
+    "@supabase/supabase-js": "^2.57.0",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.57.0",
-    "zod": "^3.24.0",
-    "react-hook-form": "^7.62.0"
+    "react-hook-form": "^7.62.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",
-    "@types/node": "^20",
+    "@types/node": "^22.20.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "tailwindcss": "4.3.3",
     "typescript": "^5",
-    "vitest": "^3.2.0"
+    "vitest": "^5.1.1"
   }
 }

@@ -1,10 +1,21 @@
 const PLACEHOLDERS = ["your-project", "your-anon-key", "example", "placeholder"];
 
 export class SupabaseConfigurationError extends Error {
-  constructor() {
-    super("Supabase n’est pas configuré. Ajoutez NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY dans .env.local, puis redémarrez l’application.");
+  constructor(message = "Supabase n’est pas configuré. Ajoutez NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY dans .env.local, puis redémarrez l’application.") {
+    super(message);
     this.name = "SupabaseConfigurationError";
   }
+}
+
+export function getSupabaseServerConfig() {
+  const { url, anonKey } = getSupabasePublicConfig();
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!serviceRoleKey || PLACEHOLDERS.some((value) => serviceRoleKey.includes(value))) {
+    throw new SupabaseConfigurationError(
+      "L’authentification serveur n’est pas configurée. Ajoutez SUPABASE_SERVICE_ROLE_KEY dans .env.local, puis redémarrez l’application.",
+    );
+  }
+  return { url, anonKey, serviceRoleKey };
 }
 
 export function getSupabasePublicConfig() {
@@ -19,4 +30,8 @@ export function isSupabaseConfigured() {
   try { getSupabasePublicConfig(); return true; } catch { return false; }
 }
 
-export const SUPABASE_CONFIGURATION_MESSAGE = "Supabase n’est pas encore configuré. Copiez .env.example vers .env.local, renseignez l’URL et la clé publique anon de votre projet, puis redémarrez le serveur.";
+export function isSupabaseServerConfigured() {
+  try { getSupabaseServerConfig(); return true; } catch { return false; }
+}
+
+export const SUPABASE_CONFIGURATION_MESSAGE = "Supabase n’est pas encore configuré. Copiez .env.example vers .env.local, renseignez l’URL, la clé publique anon et la clé service-role réservée au serveur, puis redémarrez l’application.";
